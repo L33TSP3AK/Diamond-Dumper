@@ -91,8 +91,6 @@ Mass Reporting System
 
 ---
 
-Here's the donation information formatted in Markdown:
-
 ## 💖 Support Us
 
 If you find **Diamond 💎 Dumper** useful and would like to support our development efforts, consider making a donation! Your contributions help us improve the tool and add new features.
