@@ -1,0 +1,9 @@
+PyQt5==5.15.7
+requests==2.31.0
+telebot==0.0.4
+telethon==1.29.0
+loguru==0.7.0
+cryptography==41.0.2
+aiohttp==3.8.5
+colorama==0.4.6
+Flask==2.3.3
