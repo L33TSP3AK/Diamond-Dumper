@@ -4,6 +4,8 @@
 
 Diamond Dumper is a sophisticated Telegram token management utility, offering a comprehensive suite of tools for power users and administrators. It combines token management, session handling, and advanced reporting features in one powerful package.
 
+![image](https://github.com/user-attachments/assets/e4f79a64-ee19-4151-86f7-913c77be13b5)
+
 ## 🚀 Core Features
 
 ### 1. Token Management 🔑
@@ -17,6 +19,7 @@ Diamond Dumper is a sophisticated Telegram token management utility, offering a 
   - TData directories
 - **Visual Interface**: User-friendly GUI for session management
 - **Quick Actions**: Import, export, and delete sessions with ease
+![image](https://github.com/user-attachments/assets/fd486f4e-959f-4831-b30a-bde635fcc3d6)
 
 ### 3. Token Checker ✅
 - **Automated Validation**: Quickly verify the status of tokens
@@ -40,6 +43,7 @@ Functions and Webhooks
 - **Data Export**: Generate reports and export data in various formats
 
 ## 🤖 Integrated Telegram Bot
+![image](https://github.com/user-attachments/assets/ec46c43f-5587-4b3a-a145-4581b1692f08)
 
 Telegram Bot Feature
 
@@ -58,6 +62,7 @@ Session Manager View
 - **Search and Filter**: Easily find specific sessions based on various criteria
 
 ## 🚨 TG Mass Reporting System
+![Uploading image.png…]()
 
 Mass Reporting System
 
