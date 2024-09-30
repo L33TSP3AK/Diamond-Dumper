@@ -24,14 +24,15 @@ from asyncio import Semaphore
 import datetime
 from datetime import date
 from reporting import login_telegram, report_user
-from PyQt5.QtWidgets import QMainWindow, QComboBox, QButtonGroup, QTextEdit, QProgressDialog, QInputDialog, QLineEdit
+from PyQt5.QtWidgets import QMainWindow, QComboBox, QTextEdit, QProgressBar, QInputDialog, QLineEdit, QButtonGroup
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QMainWindow
 from PyQt5.QtCore import QTimer
 import smtplib
-from PyQt5.QtWidgets import QMessageBox
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from PyQt5.QtWidgets import QMainWindow, QTextEdit, QMessageBox, QApplication
+from PyQt5.QtGui import QTextCursor
+from PyQt5.QtCore import QThread, pyqtSignal
+
 
 # Import specific functions if needed
 from bot.bot import launch_bot, list_tokens
@@ -61,10 +62,18 @@ def colorama_to_html(text):
 
 
 
+
+
+
+
+
+
+
+
 print("Current working directory:", os.getcwd())
 
-API_ID = 
-API_HASH = ""
+API_ID = 17463049
+API_HASH = "bd4bbac77f54cd096ede52dd2e8e2e50"
 HISTORY_DUMP_STEP = 200
 LOOKAHEAD_STEP_COUNT = 0
 all_chats = {}
@@ -77,36 +86,39 @@ base_path = ''
 class SMTPCheckerThread(QThread):
     result_signal = pyqtSignal(str, bool)
     finished_signal = pyqtSignal()
+    progress_signal = pyqtSignal(int)
 
     def __init__(self, smtp_strings):
         super().__init__()
         self.smtp_strings = smtp_strings
         self.is_cancelled = False
+
     def run(self):
-        for smtp_string in self.smtp_strings:
+        total_checks = len(self.smtp_strings)
+        for index, smtp_string in enumerate(self.smtp_strings):
             if self.is_cancelled:
-                self.result_signal.emit("SMTP check cancelled by user.", False)
                 break
             
-            if smtp_string.strip():
-                try:
-                    host, port, username, password = smtp_string.split('|')
-                    port = int(port.strip())
+            try:
+                host, port, username, password = smtp_string.split('|')
+                port = int(port.strip())
+                
+                self.result_signal.emit(f"Checking: {host}:{port} with username {username}", False)
+                
+                with smtplib.SMTP(host, port, timeout=10) as server:
+                    server.ehlo()
+                    server.starttls()
+                    server.ehlo()
+                    server.login(username.strip(), password.strip())
                     
-                    self.result_signal.emit(f"Checking: {host}:{port} with username {username}", False)
-                    
-                    with smtplib.SMTP(host, port, timeout=10) as server:
-                        server.ehlo()
-                        server.starttls()
-                        server.ehlo()
-                        server.login(username.strip(), password.strip())
-                        
-                    self.result_signal.emit(f"Success: Connection established to {host}:{port}", True)
-                except Exception as e:
-                    self.result_signal.emit(f"Error: {str(e)}", False)
+                self.result_signal.emit(f"Success: Connection established to {host}:{port}", True)
+            except Exception as e:
+                self.result_signal.emit(f"Error: {str(e)}", False)
+            
+            progress = int((index + 1) / total_checks * 100)
+            self.progress_signal.emit(progress)
         
         self.finished_signal.emit()
-
 
     def cancel(self):
         self.is_cancelled = True
@@ -165,9 +177,12 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
         uic.loadUi('dumper.ui', self)
         self.current_thread = None
+        checks_completed_signal = pyqtSignal()
+
         self.smtp_strings = []
         self.connected_count = 0
-        # Connect buttons
+        self.total_checks = 0
+        self.successful_checks = 0
         self.dumpDocument_button.clicked.connect(self.sendDocument_function)
         self.dumpMessage_button.clicked.connect(self.dumpMessages)
         self.start_button.clicked.connect(self.async_start_function)
@@ -242,7 +257,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 print("tabWidget not found!")
         else:
             print("token_dumper_tab not found!")
-
+        self.smtp_console.setReadOnly(True)
         # Initialize other properties
         self.tokens = []
         self.TOKEN_COLUMN = 1
@@ -300,170 +315,86 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.process_asyncio_events)
         self.timer.start(10)  # 10ms interval
         self.reporting_reason_comboBox.currentTextChanged.connect(self.update_letter_console)
-        self.smtp_check_button.clicked.connect(self.check_smtp_connections)
-        self.start_reporting_button.clicked.connect(self.start_reporting_function)
-        
-        
-            
-    def start_reporting_function(self):
-        try:
-            # Check if there are any connected SMTPs
-            smtp_count = self.connected_lcdNumber.value()
-            if smtp_count == 0:
-                QMessageBox.warning(self, 'No SMTPs Connected', 'Please connect to at least one SMTP server before starting the reporting process.')
-                return
+        self.smtp_check_button.clicked.connect(self.start_smtp_check)
 
-            # Check if a target type is selected
-            if not (self.group_checkBox.isChecked() or self.channel_checkBox.isChecked() or self.account_checkBox.isChecked()):
-                QMessageBox.warning(self, 'No Target Type Selected', 'Please select a target type (Group, Channel, or Account) before starting the reporting process.')
-                return
-
-            # Gather the required information
-            reporting_reason = self.reporting_reason_comboBox.currentText()
-            letter_template = self.letter_console_textedit.toPlainText()
-            target_id = self.user_id_lineedit.toPlainText()
-
-            # Determine the target type
-            if self.group_checkBox.isChecked():
-                target_type = "Group"
-            elif self.channel_checkBox.isChecked():
-                target_type = "Channel"
-            elif self.account_checkBox.isChecked():
-                target_type = "Account"
-            else:
-                target_type = "Unknown"  # This should never happen due to the earlier check
-
-            # Create the confirmation message
-            confirmation_msg = f"""
-            You are about to start a mass reporting blast session.
-
-            Details:
-            - Number of SMTPs: {smtp_count}
-            - Reporting Reason: {reporting_reason}
-            - Target Type: {target_type}
-            - Target ID: {target_id}
-
-            Letter Template Preview:
-            {letter_template[:100]}...
-
-            Are you sure you want to proceed?
-            """
-
-            # Show the confirmation dialog
-            reply = QMessageBox.question(self, 'Confirm Reporting Session', confirmation_msg, 
-                                         QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-
-            if reply == QMessageBox.Yes:
-                # User confirmed, start the reporting process
-                self.begin_reporting_process(smtp_count, reporting_reason, letter_template, target_id, target_type)
-            else:
-                # User cancelled
-                QMessageBox.information(self, 'Cancelled', 'Reporting session cancelled.')
-
-        except AttributeError as e:
-            error_msg = f"An error occurred while starting the reporting function:\n\n{str(e)}\n\nPlease check that all UI elements are correctly defined and accessible."
-            QMessageBox.critical(self, "Error", error_msg)
-        except Exception as e:
-            error_msg = f"An unexpected error occurred:\n\n{str(e)}\n\nPlease contact the developer with this error message."
-            QMessageBox.critical(self, "Unexpected Error", error_msg)
-
-    def begin_reporting_process(self, smtp_count, reason, template, target_id, target_type):
-        # Ensure smtp_count is an integer
-        smtp_count = int(smtp_count)
-    
-        # Show initial message
-        QMessageBox.information(self, 'Reporting Started', 'The reporting process has begun.')
-    
-        # Create a progress dialog
-        progress = QProgressDialog("Sending reports...", "Cancel", 0, smtp_count, self)
-        progress.setWindowModality(Qt.WindowModal)
-        progress.setWindowTitle("Reporting Progress")
-    
-        # Clear the SMTP console
-        self.smtp_console.clear()
-        self.smtp_console.append("Starting reporting process...")
-    
-        # Get SMTP details (assuming they're stored in self.smtp_strings)
-        smtp_details = self.smtp_strings[:smtp_count]
-    
-        successful_deliveries = 0
-        remaining_reports = smtp_count
-        number = 0  # Initialize the counter for sent letters
-    
-        # Initialize LCD displays
-        self.sent_lcdNumber.display(0)
-        self.left_lcdNumber.display(remaining_reports)
-    
-        for i, smtp_string in enumerate(smtp_details):
-            if progress.wasCanceled():
-                self.smtp_console.append("Process cancelled by user.")
-                break
-    
-            try:
-                # Parse SMTP details
-                host, port, username, password = smtp_string.split(',')
-    
-                # Fill the template
-                filled_template = template.replace("[Target ID]", target_id).replace("[Target Type]", target_type)
-    
-                # Prepare the email
-                msg = MIMEMultipart()
-                msg["From"] = username  # Use the SMTP username as the From field
-                msg["To"] = "report@telegram.org"  # Replace with the actual recipient email
-                msg["Subject"] = "Report Abuse"
-                msg.attach(MIMEText(filled_template, "plain"))
-    
-                # Connect to SMTP server and send the email
-                with smtplib.SMTP(host, int(port)) as server:
-                    server.starttls()
-                    server.login(username, password)
-                    server.send_message(msg)
-    
-                # Update counters and displays
-                successful_deliveries += 1
-                number += 1  # Increment the counter for sent letters
-    
-                # Update progress, SMTP console, and LCD displays
-                delivery_message = f"Report {i + 1} sent successfully via {username} for {target_type} {target_id}. Total sent: {number}"
-                self.smtp_console.append(delivery_message)
-                self.smtp_console.ensureCursorVisible()
-                self.sent_lcdNumber.display(successful_deliveries)
-    
-                # Update the number display (assuming you have a QLabel or similar widget for this)
-                self.number_label.setText(str(number))
-    
-            except smtplib.SMTPException as smtp_error:
-                error_message = f"SMTP error sending report {i + 1} via {username}: {str(smtp_error)}"
-                self.smtp_console.append(error_message)
-                self.smtp_console.ensureCursorVisible()
-    
-            except Exception as e:
-                error_message = f"Error sending report {i + 1} via {username}: {str(e)}"
-                self.smtp_console.append(error_message)
-                self.smtp_console.ensureCursorVisible()
-    
-            finally:
-                # Update progress and remaining reports count
-                progress.setValue(i + 1)
-                remaining_reports -= 1
-                self.left_lcdNumber.display(remaining_reports)
-    
-        # Finalize only after all letters have been processed
-        progress.setValue(smtp_count)
-        summary_message = f"Reporting Complete. Successfully sent {successful_deliveries} out of {smtp_count} reports for {target_type} {target_id}. Total letters sent: {number}"
-        self.smtp_console.append(summary_message)
-        QMessageBox.information(self, 'Reporting Complete', summary_message)
-        
-        
-        
-        
-        
     def start_smtp_check(self):
-        self.smtp_console.clear()
-        self.smtp_strings = [s.strip() for s in self.smtp_combo_textedit.toPlainText().split('\n') if s.strip()]
-        self.connected_count = 0
-        self.connected_lcdNumber.display(self.connected_count)
-        self.check_next_smtp()
+        self.progressBar.setValue(0)
+        smtp_strings = [...]  # Your list of SMTP strings
+        self.smtp_threadss = SMTPCheckerThread(smtp_strings)
+        self.smtp_threadss.result_signal.connect(self.update_results)
+        self.smtp_threadss.finished_signal.connect(self.on_check_finished)
+        self.smtp_threadss.progress_signal.connect(self.update_progress)
+        self.smtp_threadss.start()
+
+
+    def update_results(self, message, success):
+        # Create a color for the text based on success
+        color = QColor("green") if success else QColor("red")
+
+        # Set the text color
+        self.results_display.setTextColor(color)
+
+        # Append the new message
+        self.results_display.append(message)
+
+        # Scroll to the bottom to show the latest message
+        self.results_display.moveCursor(QTextCursor.End)
+        self.results_display.ensureCursorVisible()
+
+        # Process any pending events to update the UI immediately
+        QApplication.processEvents()
+
+    def on_check_finished(self):
+        # Re-enable the start button and disable the cancel button
+        self.smtp_check_button.setEnabled(True)
+        self.smtp_cancel_check_button.setEnabled(False)
+    
+        # Reset the progress bar
+        self.progressBar.setValue(100)  # Ensure it's at 100%
+    
+        # Display a summary message
+        summary = (f"SMTP Check Completed\n"
+                f"Total Checks: {self.total_checks}\n"
+                f"Successful: {self.successful_checks}\n"
+                f"Failed: {self.total_checks - self.successful_checks}")
+        
+        QMessageBox.information(self, "Check Completed", summary)
+    
+        # Append the summary to the smtp_console
+        self.smtp_console.append("\n" + "="*30 + "\n")
+        self.smtp_console.append(summary)
+        self.smtp_console.append("="*30 + "\n")
+    
+        # Scroll to the bottom of the smtp_console
+        self.smtp_console.moveCursor(QTextCursor.End)
+        self.smtp_console.ensureCursorVisible()
+    
+        # Reset counters for the next run
+        self.total_checks = 0
+        self.successful_checks = 0
+    
+        # Emit a custom signal if you need to update other parts of your application
+        self.checks_completed_signal.emit()
+    
+        # If you're using multithreading, you might want to clean up the thread
+        if hasattr(self, 'smtp_threads'):
+            self.smtp_threads.quit()
+            self.smtp_threads.wait()
+            self.smtp_threads = None
+    
+        # Optional: Play a sound to notify the user
+        QApplication.beep()
+
+    def update_results(self, message, success):
+        # ... existing code ...
+
+        # Update counters
+        self.total_checks += 1
+        if success:
+            self.successful_checks += 1
+
+
+
 
 
 
@@ -471,54 +402,97 @@ class MainWindow(QtWidgets.QMainWindow):
         self.smtp_console.clear()
         self.connected_count = 0
         self.connected_lcdNumber.display(self.connected_count)
-        smtp_strings = self.smtp_combo_textedit.toPlainText().split('\n')
+        self.total_checks = 0
+        self.successful_checks = 0
         
-        self.smtp_thread = SMTPCheckerThread(smtp_strings)
-        self.smtp_thread.result_signal.connect(self.handle_smtp_result)
-        self.smtp_thread.finished_signal.connect(self.on_smtp_check_finished)
-        self.smtp_thread.start()
+        # Get all the text from the smtp_combo_textedit
+        smtp_text = self.smtp_combo_textedit.toPlainText()
+        
+        # Split the text into lines and remove any empty lines
+        smtp_strings = [line.strip() for line in smtp_text.split('\n') if line.strip()]
+        
+        if not smtp_strings:
+            QMessageBox.warning(self, "No SMTP Strings", "Please enter SMTP connection strings before starting the check.")
+            return
+        
+        # Display the number of SMTP strings to be checked
+        self.smtp_console.append(f"Starting check for {len(smtp_strings)} SMTP connections...")
+        
+        if self.smtp_threads is not None:
+            self.smtp_threads.quit()
+            self.smtp_threads.wait()
+        
+        self.smtp_threads = SMTPCheckerThread(smtp_strings)
+        self.smtp_threads.result_signal.connect(self.handle_smtp_result)
+        self.smtp_threads.finished_signal.connect(self.on_smtp_check_finished)
+        self.smtp_threads.progress_signal.connect(self.update_progress)
+        self.smtp_threads.start()
         
         self.smtp_check_button.setEnabled(False)
         self.smtp_cancel_check_button.setEnabled(True)
-
-
+        self.progressBar.setValue(0)
+    
     def cancel_smtp_check(self):
-        if self.smtp_thread and self.smtp_thread.isRunning():
-            self.smtp_thread.cancel()
+        if self.smtp_threads and self.smtp_threads.isRunning():
+            self.smtp_threads.cancel()
             self.smtp_console.append("SMTP check cancelled by user.")
             self.smtp_cancel_check_button.setEnabled(False)
-    
 
+    def handle_smtp_result(self, message, is_success):
+        color = QColor("green") if is_success else QColor("red")
+        self.smtp_console.setTextColor(color)
+        self.smtp_console.append(message)
+        self.smtp_console.setTextColor(QColor("black"))  # Reset color for future messages
+        
+        self.total_checks += 1
+        if is_success:
+            self.connected_count += 1
+            self.successful_checks += 1
+        
+        self.connected_lcdNumber.display(self.connected_count)
+
+
+    def update_progress(self, value):
+        self.progressBar.setValue(value)
 
     def on_smtp_check_finished(self):
         self.smtp_check_button.setEnabled(True)
         self.smtp_cancel_check_button.setEnabled(False)
-        self.smtp_threads.setValue(self.connected_count)
-        self.smtp_console.append("SMTP check completed.")
+        self.progressBar.setValue(100)  # Ensure it's at 100%
 
-    def check_next_smtp(self):
-        if self.smtp_strings:
-            smtp_string = self.smtp_strings.pop(0)
-            self.current_thread = SMTPCheckerThread(smtp_string)
-            self.current_thread.result_signal.connect(self.handle_smtp_result)
-            self.current_thread.finished.connect(self.check_next_smtp)
-            self.smtp_threads.append(self.current_thread)  # Use self.smtp_threads instead of self.thread
-            self.current_thread.start()
-        else:
-            self.smtp_check_button.setEnabled(True)
-            self.cleanup_threads()
+        summary = (f"SMTP Check Completed\n"
+                   f"Total Checks: {self.total_checks}\n"
+                   f"Successful: {self.successful_checks}\n"
+                   f"Failed: {self.total_checks - self.successful_checks}")
+        
+        QMessageBox.information(self, "Check Completed", summary)
 
-    def handle_smtp_result(self, message, is_success):
-        self.smtp_console.append(message)
-        if is_success:
-            self.connected_count += 1
-            self.connected_lcdNumber.display(self.connected_count)
+        self.smtp_console.append("\n" + "="*30 + "\n")
+        self.smtp_console.append(summary)
+        self.smtp_console.append("="*30 + "\n")
+
+        self.smtp_console.moveCursor(QTextCursor.End)
+        self.smtp_console.ensureCursorVisible()
+
+        QApplication.beep()
+        self.checks_completed_signal.emit()
+
+    def closeEvent(self, event):
+        if hasattr(self, 'smtp_threads') and hasattr(self.smtp_threads, 'isRunning'):
+            if self.smtp_threads.isRunning():
+                self.smtp_threads.cancel()
+                self.smtp_threads.quit()
+                self.smtp_threads.wait()
+        super().closeEvent(event)
+
+
 
     def cleanup_threads(self):
-        for thread in self.smtp_threads[:]:
+        for thread in self.smtp_threadss[:]:
             if not thread.isRunning():
-                self.smtp_threads.remove(thread)
+                self.smtp_threadss.remove(thread)
                 thread.deleteLater()
+
 
 
     def read_letter_file(self, filename):
@@ -595,6 +569,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def start_login(self):
         asyncio.ensure_future(self.login_to_telegram(), loop=self.loop)
+
+    def start_report(self):
+        asyncio.ensure_future(self.report_telegram_user(), loop=self.loop)
 
     async def login_to_telegram(self):
         api_id = self.api_id_textedit.toPlainText()
@@ -687,6 +664,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_tdata_console(message)
         await asyncio.sleep(0)
 
+    def update_tdata_console(self, message):
+        self.tdata_console_textedit.append(message)
+        QApplication.processEvents()
 
     async def check_sess(self, p, s, sem):
         async with sem:
@@ -1316,6 +1296,13 @@ class MainWindow(QtWidgets.QMainWindow):
         for result in results:
             self.tdata_console_textedit.append(str(result))
 
+
+
+
+
+    def update_tdata_console(self, message):
+        self.tdata_console_textedit.append(message)
+
     async def check(self, tdata_path: str, sess: str, sem: Semaphore):
         # Your check logic here
         pass
@@ -1377,6 +1364,11 @@ class MainWindow(QtWidgets.QMainWindow):
         current_value = self.progressBar.value()
         if current_value < 100:
             self.progressBar.setValue(current_value + 1)
+
+    def update_tdata_console(self, message):
+        self.tdata_console_textedit.append(message)
+        self.tdata_console_textedit.verticalScrollBar().setValue(
+            self.tdata_console_textedit.verticalScrollBar().maximum())
 
 
     def loadTdataDirectory(self):
@@ -1742,206 +1734,6 @@ class MainWindow(QtWidgets.QMainWindow):
             except Exception as e:
                 QMessageBox.critical(self, "Error", f"Failed to remove token: {str(e)}")
 
-
-
-
-
-
-    def getBotInfo(self, token):
-        try:
-            url = f"https://api.telegram.org/bot{token}/getMe"
-            response = requests.get(url)
-            
-            if response.status_code == 200:
-                json_data = response.json()
-                if json_data.get("ok"):
-                    return json_data.get("result", {})
-                else:
-                    return "Error: " + json_data.get("description", "Unknown error")
-            else:
-                return f"Error: HTTP {response.status_code}"
-        except Exception as e:
-            return f"Error: {str(e)}"
-
-
-    def mousePressEvent(self, event):
-        
-        super().mousePressEvent(event)
-    
-    def viewToken(self):
-        selected_rows = self.tableWidget.selectedItems()
-        row = selected_rows[0].row() if selected_rows else -1
-    
-        if row != -1:
-            token = self.tableWidget.item(row, 1).text()
-            
-            # Fetch bot information
-            bot_info = self.getBotInfo(token)
-            
-            if isinstance(bot_info, dict):
-                # Get conversation and message count estimate
-                conversation_count, message_count = self.getMessageAndConversationCount(token)
-                
-                # Create custom dialog
-                dialog = QtWidgets.QDialog(self)
-                dialog.setWindowTitle("Bot Information")
-                layout = QtWidgets.QVBoxLayout(dialog)
-    
-                # Create a form layout for bot details
-                form_layout = QtWidgets.QFormLayout()
-                self.addClickableRow(form_layout, "Token:", token)
-                self.addClickableRow(form_layout, "Bot Name:", bot_info.get('first_name', 'N/A'))
-                self.addClickableRow(form_layout, "Bot Username:", '@' + bot_info.get('username', 'N/A'))
-                self.addClickableRow(form_layout, "Bot ID:", str(bot_info.get('id', 'N/A')))
-                self.addClickableRow(form_layout, "Can Join Groups:", str(bot_info.get('can_join_groups', 'N/A')))
-                self.addClickableRow(form_layout, "Can Read Group Messages:", str(bot_info.get('can_read_all_group_messages', 'N/A')))
-                self.addClickableRow(form_layout, "Supports Inline Queries:", str(bot_info.get('supports_inline_queries', 'N/A')))
-                self.addClickableRow(form_layout, "Estimated Conversations:", str(conversation_count))
-                self.addClickableRow(form_layout, "Estimated Messages:", str(message_count))
-                
-                # Add form layout to main layout
-                layout.addLayout(form_layout)
-    
-                # Create button box with OK and Copy buttons
-                button_box = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
-                copy_button = QtWidgets.QPushButton("Copy All Info")
-                button_box.addButton(copy_button, QtWidgets.QDialogButtonBox.ActionRole)
-                layout.addWidget(button_box)
-    
-                # Connect buttons
-                button_box.accepted.connect(dialog.accept)
-                copy_button.clicked.connect(lambda: self.copyAllInfo(token, bot_info, conversation_count, message_count))
-    
-                # Show dialog
-                dialog.exec_()
-            else:
-                QtWidgets.QMessageBox.warning(self, "Error", f"Failed to fetch bot info: {bot_info}")
-    
-    def getConversationCount(self, token):
-        try:
-            url = f"https://api.telegram.org/bot{token}/getUpdates"
-            response = requests.get(url)
-            
-            if response.status_code == 200:
-                json_data = response.json()
-                if json_data.get("ok"):
-                    unique_chats = set()
-                    for update in json_data.get("result", []):
-                        if "message" in update:
-                            chat_id = update["message"]["chat"]["id"]
-                            unique_chats.add(chat_id)
-                    return len(unique_chats)
-                else:
-                    return "Error: " + json_data.get("description", "Unknown error")
-            else:
-                return f"Error: HTTP {response.status_code}"
-        except Exception as e:
-            return f"Error: {str(e)}"
-    
-    def copyAllInfo(self, token, bot_info, conversation_count, message_count):
-        # Prepare all information to copy
-        info_to_copy = (
-            f"Token: {token}\n"
-            f"Bot Name: {bot_info.get('first_name', 'N/A')}\n"
-            f"Bot Username: @{bot_info.get('username', 'N/A')}\n"
-            f"Bot ID: {bot_info.get('id', 'N/A')}\n"
-            f"Can Join Groups: {bot_info.get('can_join_groups', 'N/A')}\n"
-            f"Can Read Group Messages: {bot_info.get('can_read_all_group_messages', 'N/A')}\n"
-            f"Supports Inline Queries: {bot_info.get('supports_inline_queries', 'N/A')}\n"
-            f"Estimated Conversations: {conversation_count}\n"
-            f"Estimated Messages: {message_count}\n"
-        )
-        
-        # Copy to clipboard
-        clipboard = QtWidgets.QApplication.clipboard()
-        clipboard.setText(info_to_copy)
-        
-        # Show confirmation message
-        QtWidgets.QMessageBox.information(self, "Copy Info", "All information copied to clipboard!")
-
-    
-    def addClickableRow(self, layout, label, value):
-        value_label = ClickableLabel(value)
-        value_label.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
-        value_label.setCursor(QtGui.QCursor(QtCore.Qt.PointingHandCursor))
-        value_label.setStyleSheet("QLabel:hover { background-color: #e0e0e0; }")
-        value_label.clicked.connect(lambda: self.copyIndividualInfo(label, value))
-        layout.addRow(label, value_label)
-    
-    def copyIndividualInfo(self, label, value):
-        clipboard = QtWidgets.QApplication.clipboard()
-        clipboard.setText(value)
-        QtWidgets.QMessageBox.information(self, "Copy Info", f"{label[:-1]} copied to clipboard!")
-    
-    
-    def eventFilter(self, source, event):
-        if (event.type() == QtCore.QEvent.KeyPress and
-            event.matches(QtGui.QKeySequence.Copy)):
-            self.copySelection()
-            return True
-        return super().eventFilter(source, event)
-
-    def removeSelectedRow(self):
-        selected_rows = self.selectedItems()
-        row = selected_rows[0].row() if selected_rows else -1
-        if row != -1:
-            self.removeRow(row)
-
-
-    def saveTokensOnQuit(self):
-        reply = QtWidgets.QMessageBox.question(self, "Save Tokens", "Do you want to save your tokens to the database?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-        if reply == QtWidgets.QMessageBox.Yes:
-            self.saveTokensToDatabase()
-
-    # Add the saveTokensToDatabase function
-    def saveTokensToDatabase(self):
-        connection = sqlite3.connect("data\database.db")
-        cursor = connection.cursor()
-
-        # Clear the existing tokens in the 'bots' table
-        cursor.execute("DELETE FROM bots")
-
-        # Iterate through the tableWidget and save each token to the database
-        for row in range(self.tableWidget.rowCount()):
-            token = self.tableWidget.item(row, 1).text()
-            bot_name = self.tableWidget.item(row, 2).text()
-            username = self.tableWidget.item(row, 3).text()
-            status = self.tableWidget.item(row, 4).text()
-            submission_date = self.tableWidget.item(row, 5).text()
-            last_checked_date = self.tableWidget.item(row, 6).text()
-            last_dumped_date = self.tableWidget.item(row, 7).text()
-
-            # Execute an INSERT query to save the token to the 'bots' table
-            cursor.execute("INSERT INTO bots VALUES (?, ?, ?, ?, ?, ?, ?)", (token, bot_name, username, status, submission_date, last_checked_date, last_dumped_date))
-
-        # Commit the changes and close the database connection
-        connection.commit()
-        connection.close()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ######--------------------------------------------------------------##########
 ######--------------- SESSIONS/TOKENS FUNCTIONS --------------------##########
 
@@ -1994,7 +1786,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         if self.addToDatabase(token, first_name, username):
                             self.console_text_edit_2.append(f"Token '{token}' imported successfully.")
                             
-                            console_text_edit_2.append(
+                            valid_file.write(
     f"""# ------------------------------ #
     {token}
     ID Bot : {id_bot}
@@ -2532,10 +2324,6 @@ class MainWindow(QtWidgets.QMainWindow):
             await f.write(json.dumps(messages, default=custom_serializer))
         self.console_text_edit_2.append(f"Messages written to {filename}")
 
-    def update_progress_bar(self, progress):
-        self.progressBar.setValue(int(progress))
-        self.console_text_edit_2.append(f"Progress: {progress:.2f}%")
-
     def displaySuccessMessage(self, message):
         self.console_text_edit_2.append(message)
 
@@ -2770,11 +2558,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def displayErrorMessage(self, message):
         self.console_text_edit_2.append(message)
-
-    def update_progress_bar(self, progress):
-        # Implement this method to update the progress bar
-        self.progressBar.setValue(int(progress))
-
 
 
 
