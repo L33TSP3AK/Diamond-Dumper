@@ -3,7 +3,8 @@
 
 [![Total Downloads](https://img.shields.io/github/downloads/L33TSP3AK/Diamond-Dumper/total?style=for-the-badge&color=blue&label=Downloads)][repo]
 [![Last Commit](https://img.shields.io/github/last-commit/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=green&label=Last%20Commit)][repo]
-[![Release Date](https://img.shields.io/github/release-date/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=orange&label=Release%20Date)][releases]
+
+
 
 [![Watchers](https://img.shields.io/github/watchers/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=yellow&label=Watchers)][watchers]
 [![Stars](https://img.shields.io/github/stars/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=yellow&label=Stars)][stars]
