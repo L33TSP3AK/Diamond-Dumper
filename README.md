@@ -1,12 +1,8 @@
 # Diamond 💎 Dumper: Advanced Telegram Token Management
-🔗 [WIKI](https://github.com/L33TSP3AK/Diamond-Dumper/wiki) | 📥 [Download](https://github.com/L33TSP3AK/Diamond-Dumper)
+### 🔗 [WIKI](https://github.com/L33TSP3AK/Diamond-Dumper/wiki) | 📥 [Download](https://github.com/L33TSP3AK/Diamond-Dumper)
 
 
 
-
-
-
-Updated** 
 <div align="center">
 
 [![Total Downloads](https://img.shields.io/github/downloads/L33TSP3AK/Diamond-Dumper/total?style=for-the-badge&color=blue&label=Downloads)][repo]
