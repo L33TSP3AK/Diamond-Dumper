@@ -1743,7 +1743,6 @@ class MainWindow(QtWidgets.QMainWindow):
 ######--------------------------------------------------------------##########
 ######--------------- SESSIONS/TOKENS FUNCTIONS --------------------##########
 
-
     def importBulkTokens(self):
         file_path = self.import_bulk_file_path_text_edit.toPlainText()
         tokens_to_import = []
@@ -1792,6 +1791,19 @@ class MainWindow(QtWidgets.QMainWindow):
                         if self.addToDatabase(token, first_name, username):
                             self.console_text_edit_2.append(f"Token '{token}' imported successfully.")
                             
+                            # Add this block to display detailed info in the console
+                            detailed_info = f"""# ------------------------------ #
+    Token: {token}
+    ID Bot: {id_bot}
+    First name: {first_name}
+    Username: @{username}
+    Can join groups: {can_join_groups}
+    Can read all group messages: {can_read_all_group_messages}
+    Supports inline queries: {supports_inline_queries}
+    Can connect to business: {can_connect_to_business}
+    # ------------------------------ #"""
+                            self.console_text_edit_2.append(detailed_info)
+                            
                             valid_file.write(
     f"""# ------------------------------ #
     {token}
@@ -1817,7 +1829,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self.console_text_edit_2.append(f"File not found: {file_path}")
         except OSError:
             self.console_text_edit_2.append(f"Error reading file: {file_path}")
-    
+        
+        
+        
+
     def isTokenDuplicate(self, token):
         connection = sqlite3.connect('data\database.db')
         cursor = connection.cursor()
