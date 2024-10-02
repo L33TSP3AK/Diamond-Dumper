@@ -3,8 +3,72 @@ import sqlite3
 import os
 import json
 import datetime
+from datetime import datetime, timedelta
+from .button_handlers import *
 
-    
+
+
+
+def count_tokens(database_path='data/database.db'):
+    """Count total tokens in the database."""
+    try:
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM TOKENS")
+        total_tokens = cursor.fetchone()[0]
+        conn.close()
+        return total_tokens
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        return 0
+
+def count_new_tokens(database_path='data/database.db'):
+    """Count new tokens added in the last 24 hours."""
+    try:
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+        
+        # Calculate the timestamp for 24 hours ago
+        twenty_four_hours_ago = datetime.now() - timedelta(days=1)
+        
+        # Convert to string format (ISO 8601)
+        twenty_four_hours_ago_str = twenty_four_hours_ago.strftime('%Y-%m-%d %H:%M:%S')
+        
+        
+        # Assuming there is a 'created_at' column in 'tokens' table that stores token creation time
+        cursor.execute("SELECT COUNT(*) FROM TOKENS WHERE submission_date >= ?", (twenty_four_hours_ago_str,))
+        new_tokens_count = cursor.fetchone()[0]
+        
+        conn.close()
+        return new_tokens_count
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        return 0
+
+
+def count_new_tokens_this_week(database_path='data/database.db'):
+    """Count new tokens added in the last week."""
+    try:
+        conn = sqlite3.connect(database_path)
+        cursor = conn.cursor()
+        
+        # Calculate the timestamp for one week ago
+        one_week_ago = datetime.now() - timedelta(weeks=1)
+        
+        # Convert to string format (ISO 8601)
+        one_week_ago_str = one_week_ago.strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Query to count new tokens based on submission_date
+        cursor.execute("SELECT COUNT(*) FROM TOKENS WHERE submission_date >= ?", (one_week_ago_str,))
+        new_tokens_week_count = cursor.fetchone()[0]
+        
+        conn.close()
+        return new_tokens_week_count
+    except sqlite3.Error as e:
+        print(f"Database error: {str(e)}")
+        return 0
+
+
 def launch_bot(TOKEN, user_id):
     try:
         bot = telebot.TeleBot(TOKEN)
@@ -30,14 +94,26 @@ def launch_bot(TOKEN, user_id):
         inline_menu.row(button9, button10)
         inline_menu.row(button11)
 
+        # Retrieve token counts
+        total_tokens = count_tokens()
+        new_tokens_count = count_new_tokens()
+        new_tokens_week_count = count_new_tokens_this_week()
+
         # Send a message to user and groups indicating the bot is online
         bot.send_message(
             user_id,
-            "Welcome to the TCO Token Dumper Manager Bot!\n\n"
-            "Here, you can easily manage, access, and view your saved tokens from the Dumper Panel.\n\n"
+            "Welcome to the User Bot for Diamond Dumper!\n\n"
+            "🔗 [WIKI](https://github.com/L33TSP3AK/Diamond-Dumper/wiki) | 📥 [Download](https://github.com/L33TSP3AK/Diamond-Dumper)\n\n"
+            "╭  🔎 Panel Stats\n"
+            f"┣  Number of Tokens: `{total_tokens}`\n"
+            f"┣  New Tokens this Week: `{new_tokens_week_count}`\n"
+            f"┣  New Tokens (Past 24hrs): `{new_tokens_count}`\n"
+            "╰  Your Access Level\n\n"
             "If you have any issues, questions, comments, or concerns, please check out the @CashOut_Assistant_Bot.",
-            reply_markup=inline_menu
+            reply_markup=inline_menu,
+            parse_mode="Markdown"  # Use Markdown for formatting links
         )
+        
         return "Bot launched successfully."
 
     except telebot.apihelper.ApiException as e:
@@ -104,97 +180,6 @@ async def save_media_document(bot, chat_id, document):
         filename = f'{old_filename}_{document.id}{extension}'
     await safe_api_request(bot.download_file(document, filename), 'download file')
     return filename
-
-
-
-
-def list_tokens():
-    """Retrieve tokens from the database and format them into a message."""
-    try:
-        current_directory = os.path.dirname(os.path.abspath(__file__))
-        parent_directory = os.path.dirname(current_directory)
-        db_path = os.path.join(parent_directory, '.data', 'database.db')
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        cursor.execute("SELECT Token, Username FROM Tokens")
-        results = cursor.fetchall()
-        
-        # Close the database connection
-        conn.close()
-
-        # Initialize the message
-        message = "Tokens in the data:\n"
-        
-        # Iterate over the results and append each token and username to the message
-        for token, username in results:
-            message += f"Token: {token}, Username: {username}\n"
-        
-        return message  # Return the formatted message
-
-    except sqlite3.Error as e:
-        return f"Database error: {str(e)}"
-    except Exception as e:
-        return f"An unexpected error occurred: {str(e)}"
-
-def dump_tokens():
-    try:
-        # Connect to the database
-        with sqlite3.connect('data\database.db') as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT Token, Username FROM Tokens")
-            results = cursor.fetchall()
-
-        # Check if there are tokens to dump
-        if not results:
-            return "No tokens available to dump."
-
-        # Define the CSV file path
-        csv_file_path = 'tokens_dump.csv'
-
-        # Write the tokens to a CSV file
-        with open(csv_file_path, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['Token', 'Username'])  # Write header
-            writer.writerows(results)  # Write token data
-
-        return f"Tokens successfully dumped to {csv_file_path}."
-
-    except sqlite3.Error as e:
-        return f"An error occurred while accessing the database: {str(e)}"
-    except Exception as e:
-        return f"An unexpected error occurred: {str(e)}"
-
-def bot_auth(token):
-    """Check the bot's authorization status and webhook configuration."""
-    try:
-        bot = telebot.TeleBot(token)
-
-        # Check bot authorization by getting bot info
-        bot_info = bot.get_me()  # This will raise an exception if the token is invalid
-        bot_username = bot_info.username
-        bot_id = bot_info.id
-
-        # Check webhook status
-        webhook_info = bot.get_webhook_info()
-        webhook_url = webhook_info.url
-        webhook_active = webhook_info.has_custom_certificate
-
-        # Prepare the report message
-        message = (
-            f"Bot is authorized.\n"
-            f"Bot ID: {bot_id}\n"
-            f"Bot Username: @{bot_username}\n"
-            f"Webhook URL: {webhook_url if webhook_url else 'No webhook set'}\n"
-            f"Webhook Active: {'Yes' if webhook_active else 'No'}"
-        )
-
-        return message
-
-    except telebot.apihelper.ApiException as e:
-        return f"Bot authentication failed: {str(e)}"
-    except Exception as e:
-        return f"An unexpected error occurred: {str(e)}"
-
 
 
 

