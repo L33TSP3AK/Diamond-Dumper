@@ -1,5 +1,6 @@
 # Diamond 💎 Dumper: Advanced Telegram Token Management
-![GitHub all releases](https://img.shields.io/github/downloads/L33TSP3AK/Diamond-Dumper/total)
+![GitHub all releases](https://img.shields.io/github/downloads/L33TSP3AK/Diamond-Dumper/total?style=for-the-badge&color=blue&label=Total%20Downloads)
+
 ## 🌟 Overview
 
 Diamond Dumper is a sophisticated Telegram token management utility, offering a comprehensive suite of tools for power users and administrators. It combines token management, session handling, and advanced reporting features in one powerful package.
