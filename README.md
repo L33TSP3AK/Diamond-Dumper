@@ -1,19 +1,16 @@
 # Diamond 💎 Dumper: Advanced Telegram Token Management
 ### <div align="center">🔗 [WIKI](https://github.com/L33TSP3AK/Diamond-Dumper/wiki) | 📥 [Download](https://github.com/L33TSP3AK/Diamond-Dumper)</div>
 
-
-
 <div align="center">
-[![Total Downloads](https://img.shields.io/github/downloads/L33TSP3AK/Diamond-Dumper/total?style=for-the-badge&color=blue&label=Downloads)][repo]
-[![Last Commit](https://img.shields.io/github/last-commit/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=green&label=Last%20Commit)][repo]
+  
+[![Total Downloads](https://img.shields.io/github/downloads/L33TSP3AK/Diamond-Dumper/total?style=for-the-badge&color=blue&label=Downloads)](https://github.com/L33TSP3AK/Diamond-Dumper)
+[![Last Commit](https://img.shields.io/github/last-commit/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=green&label=Last%20Commit)](https://github.com/L33TSP3AK/Diamond-Dumper)
 
+[![Watchers](https://img.shields.io/github/watchers/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=yellow&label=Watchers)](https://github.com/L33TSP3AK/Diamond-Dumper/watchers)
+[![Stars](https://img.shields.io/github/stars/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=yellow&label=Stars)](https://github.com/L33TSP3AK/Diamond-Dumper/stargazers)
+[![Forks](https://img.shields.io/github/forks/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=yellow&label=Forks)](https://github.com/L33TSP3AK/Diamond-Dumper/network/members)
 
-
-[![Watchers](https://img.shields.io/github/watchers/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=yellow&label=Watchers)][watchers]
-[![Stars](https://img.shields.io/github/stars/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=yellow&label=Stars)][stars]
-[![Forks](https://img.shields.io/github/forks/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=yellow&label=Forks)][forks]
-
-[![Page Views](https://hits.dwyl.com/L33TSP3AK/Diamond-Dumper.svg?style=for-the-badge&color=purple&label=Views)][repo]
+[![Page Views](https://hits.dwyl.com/L33TSP3AK/Diamond-Dumper.svg?style=for-the-badge&color=purple&label=Views)](https://github.com/L33TSP3AK/Diamond-Dumper)
 
 </div>
 
