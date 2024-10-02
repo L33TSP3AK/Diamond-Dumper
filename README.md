@@ -5,7 +5,7 @@
 ![GitHub stars](https://img.shields.io/github/stars/L33TSP3AK/Diamond-Dumper?style=social)
 ![GitHub last commit](https://img.shields.io/github/last-commit/L33TSP3AK/Diamond-Dumper)
 ![GitHub Release Date](https://img.shields.io/github/release-date/L33TSP3AK/Diamond-Dumper)
-
+![Total Page Views](https://hits.dwyl.com/L33TSP3AK/Diamond-Dumper.svg)
 
 
 
