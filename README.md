@@ -1,14 +1,23 @@
 # Diamond 💎 Dumper: Advanced Telegram Token Management
-![GitHub all releases](https://img.shields.io/github/downloads/L33TSP3AK/Diamond-Dumper/total?style=for-the-badge&color=blue&label=Total%20Downloads)
-![GitHub watchers](https://img.shields.io/github/watchers/L33TSP3AK/Diamond-Dumper?style=social)
-![GitHub forks](https://img.shields.io/github/forks/L33TSP3AK/Diamond-Dumper?style=social)
-![GitHub stars](https://img.shields.io/github/stars/L33TSP3AK/Diamond-Dumper?style=social)
-![GitHub last commit](https://img.shields.io/github/last-commit/L33TSP3AK/Diamond-Dumper)
-![GitHub Release Date](https://img.shields.io/github/release-date/L33TSP3AK/Diamond-Dumper)
-![Total Page Views](https://hits.dwyl.com/L33TSP3AK/Diamond-Dumper.svg)
+<div align="center">
 
+[![Total Downloads](https://img.shields.io/github/downloads/L33TSP3AK/Diamond-Dumper/total?style=for-the-badge&color=blue&label=Downloads)][repo]
+[![Last Commit](https://img.shields.io/github/last-commit/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=green&label=Last%20Commit)][repo]
+[![Release Date](https://img.shields.io/github/release-date/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=orange&label=Release%20Date)][releases]
 
+[![Watchers](https://img.shields.io/github/watchers/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=yellow&label=Watchers)][watchers]
+[![Stars](https://img.shields.io/github/stars/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=yellow&label=Stars)][stars]
+[![Forks](https://img.shields.io/github/forks/L33TSP3AK/Diamond-Dumper?style=for-the-badge&color=yellow&label=Forks)][forks]
 
+[![Page Views](https://hits.dwyl.com/L33TSP3AK/Diamond-Dumper.svg?style=for-the-badge&color=purple&label=Views)][repo]
+
+</div>
+
+[repo]: https://github.com/L33TSP3AK/Diamond-Dumper
+[releases]: https://github.com/L33TSP3AK/Diamond-Dumper/releases
+[watchers]: https://github.com/L33TSP3AK/Diamond-Dumper/watchers
+[stars]: https://github.com/L33TSP3AK/Diamond-Dumper/stargazers
+[forks]: https://github.com/L33TSP3AK/Diamond-Dumper/network/members
 
 ## 🌟 Overview
 
