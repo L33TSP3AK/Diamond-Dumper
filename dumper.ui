@@ -324,7 +324,7 @@ QCheckBox::indicator:checked:hover {
    <widget class="QTabWidget" name="tabs">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>0</x>
       <y>0</y>
       <width>1300</width>
       <height>681</height>
@@ -431,12 +431,6 @@ QCheckBox::indicator:checked:hover {
       <property name="styleSheet">
        <string notr="true">border-color: #1de9b6;
 color: rgb(222, 0, 0);</string>
-      </property>
-      <property name="verticalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOn</enum>
-      </property>
-      <property name="horizontalScrollBarPolicy">
-       <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
       <property name="selectionBehavior">
        <enum>QAbstractItemView::SelectRows</enum>
@@ -552,9 +546,9 @@ color: rgb(222, 0, 0);</string>
      <widget class="QPushButton" name="load_database_button">
       <property name="geometry">
        <rect>
-        <x>640</x>
+        <x>690</x>
         <y>10</y>
-        <width>161</width>
+        <width>121</width>
         <height>31</height>
        </rect>
       </property>
@@ -575,9 +569,9 @@ color: rgb(222, 0, 0);</string>
      <widget class="QPushButton" name="import_bulk_button">
       <property name="geometry">
        <rect>
-        <x>540</x>
+        <x>610</x>
         <y>10</y>
-        <width>80</width>
+        <width>71</width>
         <height>31</height>
        </rect>
       </property>
@@ -788,7 +782,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
        <rect>
         <x>360</x>
         <y>10</y>
-        <width>161</width>
+        <width>211</width>
         <height>31</height>
        </rect>
       </property>
@@ -1489,6 +1483,25 @@ the content to a custom directory path of your choice</string>
        </widget>
       </widget>
      </widget>
+     <widget class="QPushButton" name="text_file_directory_button">
+      <property name="geometry">
+       <rect>
+        <x>570</x>
+        <y>10</y>
+        <width>31</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>18</pointsize>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>📂</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tdata_manager_tab">
      <attribute name="title">
@@ -2077,10 +2090,6 @@ the content to a custom directory path of your choice</string>
         <height>23</height>
        </rect>
       </property>
-      <property name="toolTip">
-       <string>The number of SMTPs that are checked
-And loaded and ready for spamming</string>
-      </property>
      </widget>
      <widget class="QLCDNumber" name="sent_lcdNumber">
       <property name="geometry">
@@ -2237,9 +2246,6 @@ And loaded and ready for spamming</string>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QCheckBox" name="group_checkBox">
-         <property name="toolTip">
-          <string>Use a telegram Group ID Number</string>
-         </property>
          <property name="text">
           <string>Group</string>
          </property>
@@ -2247,9 +2253,6 @@ And loaded and ready for spamming</string>
        </item>
        <item>
         <widget class="QCheckBox" name="channel_checkBox">
-         <property name="toolTip">
-          <string>Use a telegram Channel ID Number</string>
-         </property>
          <property name="text">
           <string>Channel</string>
          </property>
@@ -2257,10 +2260,6 @@ And loaded and ready for spamming</string>
        </item>
        <item>
         <widget class="QCheckBox" name="account_checkBox">
-         <property name="toolTip">
-          <string>When selecting a Telegram Account - 
-Be sure to use a telegram USER ID Number - - and not their handle</string>
-         </property>
          <property name="text">
           <string>Account</string>
          </property>
@@ -2364,13 +2363,13 @@ li.checked::marker { content: &quot;\2612&quot;; }
 &lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:37px; margin-right:37px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;User-Friendly Interface: A simple and intuitive GUI for effortless navigation and use. &lt;/li&gt;
 &lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:37px; margin-right:37px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Multiple Reporting Categories: Report users for various violations, including: 
 &lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 2;&quot;&gt;
-&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:111px; margin-right:111px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Sharing Illegal Content &lt;/li&gt;
-&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:111px; margin-right:111px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Scams and Fraud &lt;/li&gt;
-&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:111px; margin-right:111px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Harassment and Threats &lt;/li&gt;
-&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:111px; margin-right:111px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Child Abuse &lt;/li&gt;
-&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:111px; margin-right:111px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Promoting Violence &lt;/li&gt;
-&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:111px; margin-right:111px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Impersonation &lt;/li&gt;
-&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:111px; margin-right:111px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Pedophile &lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
+&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:148px; margin-right:148px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Sharing Illegal Content &lt;/li&gt;
+&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:148px; margin-right:148px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Scams and Fraud &lt;/li&gt;
+&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:148px; margin-right:148px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Harassment and Threats &lt;/li&gt;
+&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:148px; margin-right:148px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Child Abuse &lt;/li&gt;
+&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:148px; margin-right:148px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Promoting Violence &lt;/li&gt;
+&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:148px; margin-right:148px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Impersonation &lt;/li&gt;
+&lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:148px; margin-right:148px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Pedophile &lt;/li&gt;&lt;/ul&gt;&lt;/li&gt;
 &lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:37px; margin-right:37px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Custom Comments: Add detailed comments to each report for more context. &lt;/li&gt;
 &lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:37px; margin-right:37px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Secure Authentication: Supports two-factor authentication for enhanced security. &lt;/li&gt;
 &lt;li style=&quot; font-family:'Arial','sans-serif'; color:#1de9b6;&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:37px; margin-right:37px; -qt-block-indent:0; text-indent:0px; line-height:160%;&quot;&gt;Real-time Feedback: Get immediate console feedback on the status of your reports. &lt;/li&gt;&lt;/ul&gt;
@@ -2427,6 +2426,19 @@ li.checked::marker { content: &quot;\2612&quot;; }
        <string>Cancel</string>
       </property>
      </widget>
+     <widget class="QProgressBar" name="progressBar_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>220</y>
+        <width>261</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="value">
+       <number>24</number>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>
@@ -2437,7 +2449,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <x>0</x>
      <y>0</y>
      <width>1320</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuDiamond_Sorter">
@@ -2445,55 +2457,15 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <string>Diamond Dumper - Telegram Bot Token Manager</string>
     </property>
     <addaction name="separator"/>
-   </widget>
-   <widget class="QMenu" name="menuSettings">
-    <property name="title">
-     <string>Settings</string>
-    </property>
-    <addaction name="actionRegex_Cheat_Sheet"/>
     <addaction name="actionHints_Tricks"/>
-    <addaction name="actionDataParsing"/>
-   </widget>
-   <widget class="QMenu" name="menuAbout">
-    <property name="geometry">
-     <rect>
-      <x>317</x>
-      <y>174</y>
-      <width>171</width>
-      <height>200</height>
-     </rect>
-    </property>
-    <property name="accessibleName">
-     <string/>
-    </property>
-    <property name="tearOffEnabled">
-     <bool>false</bool>
-    </property>
-    <property name="title">
-     <string>About</string>
-    </property>
-    <property name="icon">
-     <iconset>
-      <normaloff>icons/malware-64.png</normaloff>icons/malware-64.png</iconset>
-    </property>
-    <property name="separatorsCollapsible">
-     <bool>false</bool>
-    </property>
-    <property name="toolTipsVisible">
-     <bool>false</bool>
-    </property>
-    <addaction name="actionMembership"/>
-    <addaction name="actionMentorship"/>
-    <addaction name="separator"/>
-    <addaction name="actionTelegram_Group"/>
-    <addaction name="separator"/>
     <addaction name="actionMarkdown"/>
     <addaction name="actionMarkdownV2_Format"/>
     <addaction name="actionHTML_Style"/>
+    <addaction name="actionMembership"/>
+    <addaction name="actionMentorship"/>
+    <addaction name="actionTelegram_Group"/>
    </widget>
    <addaction name="menuDiamond_Sorter"/>
-   <addaction name="menuSettings"/>
-   <addaction name="menuAbout"/>
   </widget>
   <action name="actionaboutButton">
    <property name="text">
