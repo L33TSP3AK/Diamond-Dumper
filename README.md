@@ -62,27 +62,9 @@ Functions and Webhooks
 - **Automated Actions**: Set up triggers for specific events or conditions
 - **Data Export**: Generate reports and export data in various formats
 
-## 🤖 Integrated Telegram Bot
-![image](https://github.com/user-attachments/assets/ec46c43f-5587-4b3a-a145-4581b1692f08)
-
-Telegram Bot Feature
-
-### Key Capabilities:
-- **Remote Management**: Control panel functions without direct access
-- **Real-time Forwarding**: Set up automatic message forwarding
-- **User Assignment**: Delegate specific tasks or permissions to users
-
-## 📊 Session Manager View
-
-Session Manager View
-
-### Features:
-- **Visual Session Mapping**: Get a clear overview of all active sessions
-- **Quick Editing**: Modify session properties directly from the view
-- **Search and Filter**: Easily find specific sessions based on various criteria
 
 ## 🚨 TG Mass Reporting System
-![Uploading image.png…]()
+![image](https://github.com/user-attachments/assets/329e1b36-6b50-45e1-a1aa-e5e07002eb82)
 
 Mass Reporting System
 
@@ -108,6 +90,28 @@ Mass Reporting System
 - **Comprehensive User Guide**: Detailed instructions for all features
 - **Video Tutorials**: Step-by-step visual guides for complex operations
 - **Community Forum**: Connect with other users for tips and troubleshooting
+
+
+
+## 🤖 Integrated Telegram Bot
+![image](https://github.com/user-attachments/assets/ec46c43f-5587-4b3a-a145-4581b1692f08)
+
+Telegram Bot Feature
+
+### Key Capabilities:
+- **Remote Management**: Control panel functions without direct access
+- **Real-time Forwarding**: Set up automatic message forwarding
+- **User Assignment**: Delegate specific tasks or permissions to users
+
+## 📊 Session Manager View
+
+Session Manager View
+
+### Features:
+- **Visual Session Mapping**: Get a clear overview of all active sessions
+- **Quick Editing**: Modify session properties directly from the view
+- **Search and Filter**: Easily find specific sessions based on various criteria
+
 
 ---
 
